@@ -15,7 +15,7 @@ La generazione delle immagini è condizionata da maschere semantiche, permettend
 - Dataset utilizzato: TACO (Trash Annotations in Context).
 - servizi di calcolo GPU in cloud come Kaggle e Google Colab.
 
-## 📊 Dataset: 
+## 📊 Dataset utilizzati
 
 ### > TACO (Trash Annotations in Context)
 
@@ -50,3 +50,10 @@ Annotazioni: Fornisce bounding box per diverse categorie di rifiuti.
 Per la generazione delle maschere semantiche delle immagini che non presentano annotazioni utili (Plastopol dataset, Garbage Detection) è stato impiegato il tool **CVAT** (Computer Vision Annotation Tool), una piattaforma open-source per l’annotazione di immagini e video.
 
 CVAT permette di creare annotazioni personalizzate (etichette, segmentazioni poligonali, bounding box, ecc.), supportando diversi formati di esportazione (ad es. COCO).
+
+## 🧹 Elaborazione dataset
+Il dataset finale è composto da coppie immagine–maschera semantica, ottenute unendo:
+
+- Immagini annotate del dataset TACO.
+- Immagini annotate dalla community TACO (unofficial).
+- Un sottoinsieme delle immagini del dataset Garbage Detection (Roboflow), le cui maschere semantiche sono state generate utilizzando CVAT AI.
