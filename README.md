@@ -44,3 +44,9 @@ Dataset per il rilevamento automatico di rifiuti in vari contesti ambientali, ut
 Dimensioni: Parte del dataset originale di 10.000 immagini, selezionata per il training e la validazione.
 
 Annotazioni: Fornisce bounding box per diverse categorie di rifiuti.
+
+## 🛠️ Tool di Annotazione
+
+Per la generazione delle maschere semantiche delle immagini che non presentano annotazioni utili (Plastopol dataset, Garbage Detection) è stato impiegato il tool **CVAT** (Computer Vision Annotation Tool), una piattaforma open-source per l’annotazione di immagini e video.
+
+CVAT permette di creare annotazioni personalizzate (etichette, segmentazioni poligonali, bounding box, ecc.), supportando diversi formati di esportazione (ad es. COCO).
