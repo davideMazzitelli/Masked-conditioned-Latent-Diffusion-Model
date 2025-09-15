@@ -57,3 +57,30 @@ Il dataset finale è composto da coppie immagine–maschera semantica, ottenute 
 - Immagini annotate del dataset TACO.
 - Immagini annotate dalla community TACO (unofficial).
 - Un sottoinsieme delle immagini del dataset Garbage Detection (Roboflow), le cui maschere semantiche sono state generate utilizzando CVAT AI.
+- Data augmentation
+
+**📋 Caratteristiche del Dataset**
+
+Il dataset è stato organizzato in 7 classi principali più il background:
+
+<div align="center">
+  
+  | ID  | Classe               |  
+  |-----|---------------------|  
+  | 0   | Background          |  
+  | 1   | PLASTICA E POLIMERI |  
+  | 2   | METALLI             |  
+  | 3   | VETRO               |  
+  | 4   | CARTA E CARTONE     |  
+  | 5   | POLISTIROLO         |  
+  | 6   | SIGARETTE           |  
+  | 7   | NON CLASSIFICATI    |  
+  
+</div>
+
+Per ridurre lo sbilanciamento tra categorie molto rappresentate (ad esempio **Plastica e Polimeri**) e quelle meno frequenti (**Sigarette**, **Polistirolo**), è stata applicata una combinazione di strategie:  
+- **Campionamento bilanciato** durante la costruzione dei batch di training.  
+- **Data augmentation mirata** (flip, rotazioni, traslazioni, variazione di luminosità e contrasto) soprattutto sulle classi sottorappresentate.  
+- Inclusione della classe **“Non classificati”** per gestire rifiuti ambigui o non appartenenti alle categorie definite, evitando rumore eccessivo nelle altre categorie.  
+
+Queste scelte hanno permesso di mantenere una distribuzione più equilibrata e migliorare la capacità del modello di generalizzare su classi meno comuni.  
