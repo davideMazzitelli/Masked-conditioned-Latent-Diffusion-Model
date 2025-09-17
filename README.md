@@ -84,3 +84,7 @@ Per ridurre lo sbilanciamento tra categorie molto rappresentate (ad esempio **Pl
 - Inclusione della classe **“Non classificati”** per gestire rifiuti ambigui o non appartenenti alle categorie definite, evitando rumore eccessivo nelle altre categorie.  
 
 Queste scelte hanno permesso di mantenere una distribuzione più equilibrata e migliorare la capacità del modello di generalizzare su classi meno comuni.  
+
+**📂 Dataset risultante**
+- Train set: 5443 campioni
+- Validation set: 853 campioni
