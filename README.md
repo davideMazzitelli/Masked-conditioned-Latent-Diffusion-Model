@@ -88,3 +88,45 @@ Queste scelte hanno permesso di mantenere una distribuzione più equilibrata e m
 **📂 Dataset risultante**
 - Train set: 5443 campioni
 - Validation set: 853 campioni
+
+## 🧠 Architettura del Modello
+
+Per questo progetto è stato adottato un Latent Diffusion Model (LDM), scelto per la sua capacità di processare immagini ad alta risoluzione lavorando nello spazio latente invece che direttamente nello spazio dei pixel, riducendo così il costo computazionale e migliorando l’efficienza.
+
+Il modello è quindi composto di due macro-componenti principali:
+
+1️⃣ **VQ-VAE Encoder–Decoder**
+
+Un Vector Quantized Variational Autoencoder (VQ-VAE) è stato scelto come componente di compressione e ricostruzione per lavorare nello spazio latente.
+
+- Compressione efficiente: riduce la dimensionalità delle immagini originali mappandole in uno spazio latente discreto, mantenendo le informazioni semantiche chiave.
+- Quantizzazione vettoriale: utilizza un codebook di vettori latenti discreti per rappresentare in modo compatto i pattern visivi. Questa quantizzazione stabilizza il training e limita il rumore.
+- Decoder: a partire dai vettori quantizzati prodotti dal processo di diffusione, ricostruisce immagini alla risoluzione iniziale mantenendo dettagli e coerenza visiva.
+
+<div style="text-align: center;">
+
+![alt text](assets/vqvae.png)
+</div>
+
+2️⃣ **U-Net**
+
+Implementa il processo di diffusione nello spazio latente ed è basata sull’architettura proposta nel paper Semantic Image Synthesis via Diffusion Models (Weil Wang et al.).
+
+- Struttura Encoder–Decoder con Skip Connections
+- ResBlock con Condizionamento SPADE (Spatially-Adaptive Normalization): nei ResBlocks le norm layers vengono sostituite da SPADE, che inietta informazioni semantiche sulle feature map nello spazio latente; questo consente un controllo fine sul contenuto generato.
+Il condizionamento è applicato a più livelli della rete per mantenere la coerenza semantica sia nelle feature globali che nei dettagli locali.
+
+La rete opera nello spazio latente compresso dal VQ-VAE, riducendo significativamente i costi computazionali.
+
+<div style="text-align: center;">
+
+![alt text](assets/Unet.png)
+</div>
+
+**🔗 Flusso Operativo**
+
+L’immagine di input viene compressa nel latente tramite il VQ-VAE encoder.
+
+La U-Net esegue il processo di diffusione nello spazio latente per generare o modificare le rappresentazioni.
+
+Il VQ-VAE decoder ricostruisce l’immagine ad alta risoluzione dallo spazio latente elaborato.
