@@ -55,8 +55,9 @@ CVAT permette di creare annotazioni personalizzate (etichette, segmentazioni pol
 Il dataset finale è composto da coppie immagine–maschera semantica, ottenute unendo:
 
 - Immagini annotate del dataset TACO.
-- Immagini annotate dalla community TACO (unofficial).
-- Un sottoinsieme delle immagini del dataset Garbage Detection (Roboflow), le cui maschere semantiche sono state generate utilizzando CVAT AI.
+- Sottoinsieme delle immagini dalla community TACO (unofficial annotations), in quanto molte di queste presentavano annotazioni imprecise o errate.
+- Sottoinsieme delle immagini del dataset Plastopol, le cui maschere semantiche sono state generate utilizzando CVAT AI.
+- Sottoinsieme delle immagini del dataset Garbage Detection (Roboflow), le cui maschere semantiche sono state generate utilizzando CVAT AI.
 - Data augmentation
 
 **📋 Caratteristiche del Dataset**
@@ -130,3 +131,52 @@ L’immagine di input viene compressa nel latente tramite il VQ-VAE encoder.
 La U-Net esegue il processo di diffusione nello spazio latente per generare o modificare le rappresentazioni.
 
 Il VQ-VAE decoder ricostruisce l’immagine ad alta risoluzione dallo spazio latente elaborato.
+
+
+## ⚙️ Training del VQ-VAE
+
+Come già anticipato, l'architettura VQ-VAE utilizza un codebook per mappare l’input in uno spazio latente discreto.
+
+La loss function utilizzata per l'addestramento è composta da diversi componenti: 
+
+- **Reconstruction loss:** misura la differenza tra l’immagine originale e quella ricostruita dal decoder. Garantisce che l’encoder-decoder mantenga la struttura generale dell’immagine.
+  
+- **Codebook loss:** L2 loss applicata ai vettori del codebook per avvicinarli agli output dell’encoder. Permette di aggiornare i vettori latenti discreti e mantenere la coerenza del dizionario.
+  
+- **Commitment loss:** forza l’encoder a scegliere i vettori del codebook corretti e previene fluttuazioni tra diversi code vectors, aumentando la stabilità del training.
+
+Al fine di ovviare ai problemi di sfuocatura e migliorare la qualità visiva delle ricostruzioni, sono stati aggiunti due termini alla loss:
+
+- **Perceptual loss:** confronta le feature di alto livello delle immagini ricostruite con quelle originali, estratte tramite VGG16, permettendo al decoder di generare immagini più vicine alla percezione visiva dell’originale.
+
+- **Adversarial loss:** utilizza un discriminatore per spingere il decoder a produrre immagini indistinguibili da quelle reali.
+  
+  Questo termine entra in gioco solo dopo un certo numero di training steps, in modo da permettere all’encoder di imparare prima le ricostruzioni base e non ostacolare il miglioramento iniziale del decoder.
+
+
+**📈 Valutazione**
+
+Per monitorare le prestazioni del VQ-VAE e verificare la qualità delle immagini ricostruite, sono state utilizzate tre metriche complementari: FID, PSNR e SSIM. 
+Queste permettono di valutare sia la qualità visiva percepita che la fedeltà numerica (a livello di pixel) delle ricostruzioni.
+
+- **Fréchet Inception Distance (FID)**
+  
+  La FID confronta la distribuzione delle feature delle immagini ricostruite con quelle originali, calcolate usando *Inception v3*, pre-addestrato su ImageNet, fornendo una misura percettiva globale.
+  
+  $
+  \text{FID} = \|\mu_r - \mu_g\|^2 + \text{Tr}\left(\Sigma_r + \Sigma_g - 2(\Sigma_r \Sigma_g)^{1/2}\right)
+  $
+  
+- **Peak Signal-to-Noise Ratio (PSNR)**
+
+  PSNR confronta la differenza pixel-per-pixel tra le due immagini (MSE) valutando la qualità dell'immagine ricostruita, utile per verificare che il VQ-VAE mantenga dettagli locali e riduca artefatti evidenti.
+
+  $\text{PSNR} = 20 \cdot \log_{10}\left(\frac{\text{MAX}_I}{\sqrt{\text{MSE}}}\right)$
+
+- **Structural Similarity Index Measure (SSIM)**
+
+  Confronta le immagini in termini di luminosità, contrasto e struttura locale, fornendo una valutazione sulla somiglianza strutturale percepita
+    
+    $\text{SSIM}(x,y) = \frac{(2\mu_x\mu_y + C_1)(2\sigma_{xy} + C_2)}{(\mu_x^2 + \mu_y^2 + C_1)(\sigma_x^2 + \sigma_y^2 + C_2)}$
+
+Queste metriche permettono di monitorare sia che le ricostruzioni siano visivamente convincenti, sia che esse siano strutturalmente corrette e statisticamente coerenti con i dati originali.
