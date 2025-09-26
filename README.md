@@ -96,20 +96,41 @@ Per questo progetto è stato adottato un Latent Diffusion Model (LDM), scelto pe
 
 Il modello è quindi composto di due macro-componenti principali:
 
-1️⃣ **VQ-VAE Encoder–Decoder**
+### 1️⃣ VQ-VAE Encoder–Decoder
 
 Un Vector Quantized Variational Autoencoder (VQ-VAE) è stato scelto come componente di compressione e ricostruzione per lavorare nello spazio latente.
-
-- Compressione efficiente: riduce la dimensionalità delle immagini originali mappandole in uno spazio latente discreto, mantenendo le informazioni semantiche chiave.
-- Quantizzazione vettoriale: utilizza un codebook di vettori latenti discreti per rappresentare in modo compatto i pattern visivi. Questa quantizzazione stabilizza il training e limita il rumore.
-- Decoder: a partire dai vettori quantizzati prodotti dal processo di diffusione, ricostruisce immagini alla risoluzione iniziale mantenendo dettagli e coerenza visiva.
+Il VQ-VAE implementato è composto da tre parti principali: **encoder, codebook (quantizzatore) e decoder**.
 
 <div style="text-align: center;">
 
 ![alt text](assets/vqvae.png)
 </div>
 
-2️⃣ **U-Net**
+#### Encoder
+Riduce progressivamente la dimensionalità dell’immagine attraverso una sequenza di blocchi convoluzionali residui (*DownBlock* e *MidBlock*).
+
+- Ogni DownBlock combina convoluzioni, normalizzazione (*GroupNorm*) e funzioni di attivazione *SiLU*, con la possibilità di includere self-attention o cross-attention.
+- La compressione spaziale è realizzata tramite convoluzioni con stride maggiore di 1 (downsampling).
+- La parte centrale è costituita dai MidBlock, che aggiungono capacità di modellare dipendenze globali tra le feature tramite multi-head attention.
+
+Al termine dell’encoder, le feature vengono proiettate in uno spazio latente di dimensione $z = 4$ canali.
+
+#### Quantizzazione
+Dizionario di vettori di dimensione fissa (8192).
+- Ogni vettore latente in uscita dall’encoder viene sostituito dal vettore più vicino del codebook (nearest neighbor).
+- Durante l’addestramento, si applicano due termini di perdita:
+  - Codebook loss, che aggiorna i vettori del dizionario per avvicinarsi alle rappresentazioni dell’encoder.
+  - Commitment loss, che forza l’encoder a scegliere e utilizzare i vettori del dizionario in maniera stabile.
+
+Questa fase trasforma lo spazio latente continuo in uno discreto, mantenendo compattezza e riducendo la ridondanza.
+
+#### Decoder
+Ricostruisce l’immagine a partire dalla sequenza quantizzata tramite UpBlock e MidBlock.
+- Gli UpBlock eseguono l’operazione inversa ai DownBlock: upsampling tramite convoluzioni trasposte, seguite da resnet block.
+- La rete ricostruisce progressivamente la risoluzione originale, fino a ottenere un’immagine RGB nello spazio dei pixel.
+- La struttura a blocchi con skip-connection e normalizzazioni garantisce stabilità nel training e preserva dettagli locali.
+
+### 2️⃣ U-Net
 
 Implementa il processo di diffusione nello spazio latente ed è basata sull’architettura proposta nel paper Semantic Image Synthesis via Diffusion Models (Weil Wang et al.).
 
