@@ -184,9 +184,7 @@ Queste permettono di valutare sia la qualità visiva percepita che la fedeltà n
   
   La FID confronta la distribuzione delle feature delle immagini ricostruite con quelle originali, calcolate usando *Inception v3*, pre-addestrato su ImageNet, fornendo una misura percettiva globale.
   
-  $
-  \text{FID} = \|\mu_r - \mu_g\|^2 + \text{Tr}\left(\Sigma_r + \Sigma_g - 2(\Sigma_r \Sigma_g)^{1/2}\right)
-  $
+  $\text{FID} = \|\mu_r - \mu_g\|^2 + \text{Tr}\left(\Sigma_r + \Sigma_g - 2(\Sigma_r \Sigma_g)^{1/2}\right)$
   
 - **Peak Signal-to-Noise Ratio (PSNR)**
 
